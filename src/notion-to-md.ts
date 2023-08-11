@@ -65,8 +65,7 @@ export class NotionToMarkdown {
       // process parent blocks
       if (
         mdBlocks.parent &&
-        mdBlocks.type !== "toggle" &&
-        mdBlocks.type !== "child_page"
+        mdBlocks.type !== "toggle" 
       ) {
         if (
           mdBlocks.type !== "to_do" &&
@@ -198,10 +197,16 @@ export class NotionToMarkdown {
     if (!blocks) return mdBlocks;
 
     for (let i = 0; i < blocks.length; i++) {
-      let block: ListBlockChildrenResponseResult = blocks[i];
+      const block: ListBlockChildrenResponseResult = blocks[i];
 
       // @ts-ignore
       if (block.type === "child_page" && !this.config.parseChildPages) {
+        mdBlocks.push({
+          type: "child_page",
+          blockId: block.id,
+          parent: await this.blockToMarkdown(block),
+          children: [],
+        });
         continue;
       }
 
@@ -212,7 +217,7 @@ export class NotionToMarkdown {
             ? block.synced_block.synced_from.block_id
             : block.id;
         // Get children of this block.
-        let child_blocks = await getBlockChildren(
+        const child_blocks = await getBlockChildren(
           this.notionClient,
           block_id,
           totalPage
@@ -232,7 +237,7 @@ export class NotionToMarkdown {
           !(block.type in this.customTransformers) &&
           !this.customTransformers[block.type]
         ) {
-          let l = mdBlocks.length;
+          const l = mdBlocks.length;
           await this.blocksToMarkdown(
             child_blocks,
             totalPage,
@@ -243,7 +248,7 @@ export class NotionToMarkdown {
         continue;
       }
 
-      let tmp = await this.blockToMarkdown(block);
+      const tmp = await this.blockToMarkdown(block);
       mdBlocks.push({
         // @ts-ignore
         type: block.type,
@@ -374,15 +379,14 @@ export class NotionToMarkdown {
 
       case "child_page":
         {
-          if (!this.config.parseChildPages) return "";
-
+          if (this.config.parseChildPages) return "";
+          
           let pageTitle: string = block.child_page.title;
 
           if (this.config.separateChildPage) {
             return pageTitle;
           }
-
-          return md.heading2(pageTitle);
+          return md.link(pageTitle, `https://notion.so/${block.id.split("-").join("")}`);
         }
         break;
       case "child_database":
