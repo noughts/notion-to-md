@@ -322,7 +322,7 @@ export class NotionToMarkdown {
       case "child_database":
         {
           let pageTitle = block.child_database.title || `child_database`;
-          return pageTitle;
+          return md.link(pageTitle, `https://notion.so/${block.id.split("-").join("")}`);
         }
         break;
 
