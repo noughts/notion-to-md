@@ -8,7 +8,7 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "prepare": "npm run build",
-    "build": "tsc -w",
+    "build": "tsc",
     "prebuild": "npm run clean",
     "clean": "rm -rf ./build",
     "test": "jest",
